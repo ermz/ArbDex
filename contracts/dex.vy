@@ -10,6 +10,16 @@ struct Token:
     ticker: String[4]
     tokenAddr: address
 
+struct Order:
+    name: String[30]
+    symbol: String[4]
+    amount: uint256
+    price: uint256
+    side: int128
+    time: uint256
+    filled: uint256
+
+
 tickerToToken: HashMap[String[4], Token]
 
 assetPrice: HashMap[String[30], uint256]
@@ -20,9 +30,18 @@ addrToTokens: HashMap[address, HashMap[String[4], uint256]]
 
 admin: address
 
+# Will classify an order as buy(0) or sell(1)
+stateEnum: int128[2]
+
+# String[4] = Symbol, int128 = side, Order[100] = array of Order struct
+# Order struct will be in order of cheapes and earliest by time
+orderLedger: HashMap[String[4], HashMap[int128, Order[100]]]
+
 @external
 def __init__():
     self.admin = msg.sender
+    self.stateEnum[0] = 0
+    self.stateEnum[1] = 1
 
 @external
 def addToken(_name: String[30], _ticker: String[4], _address: address) -> bool:
@@ -60,6 +79,38 @@ def withdrawTokens(_ticker: String[4], amount: uint256):
     assert self.addrToTokens[msg.sender][_ticker] >= amount, "You don't have enough token to withdraw"
     iERC20(self.tickerToToken[_ticker].tokenAddr).transfer(msg.sender, amount)
     self.addrToTokens[msg.sender][_ticker] -= amount
+
+@external
+def createLimitOrder(
+        _name: String[30],
+        _symbol: String[4],
+        _amount: uint256,
+        _price: uint256,
+        _side: int128,
+        _time: uint256,
+        _filled: uint256
+    ) -> bool:
+
+    newOrder: Order = Order({
+        name: _name,
+        symbol: _symbol,
+        amount: _amount,
+        price: _price,
+        side: _side,
+        time: _time,
+        filled: _filled
+    })
+
+    # self.orderLedger[_symbol][_side][0] = newOrder
+    # for i in self.orderLedger[_symbol][_side]:
+    #     pass
+
+    # You cannot modify a value in an array while it is being iterated,
+    # or call to a function that might modify the array being iterated.
+    # Need something to keep things in order by price and date
+    # Everything becomes too convoluted
+    return True
+
 
 @external
 @view

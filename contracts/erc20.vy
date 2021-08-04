@@ -11,7 +11,7 @@ event Approval:
     amount: uint256
 
 _name: String[30]
-_symbol: String[3]
+_symbol: String[4]
 _decimal: uint256
 tokenSupply: uint256
 
@@ -19,7 +19,7 @@ userTokens: HashMap[address, uint256]
 userAllowance: HashMap[address, HashMap[address, uint256]]
 
 @external
-def __init__(newName: String[30], newSymbol: String[3], amount: uint256):
+def __init__(newName: String[30], newSymbol: String[4], amount: uint256):
     self._name = newName
     self._symbol = newSymbol
     self._decimal = 18
@@ -33,7 +33,7 @@ def name() -> String[30]:
 
 @external
 @view
-def symbol() -> String[3]:
+def symbol() -> String[4]:
     return self._symbol
 
 @external
